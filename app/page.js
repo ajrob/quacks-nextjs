@@ -235,7 +235,7 @@ export default function App() {
     blue: { blue_1: 0, blue_2: 0, blue_4: 0 },
     green: { green_1: 1, green_2: 0, green_4: 0 },
     orange: { orange_1: 1 },
-    purple: { purple_1: 1 },
+    purple: { purple_1: 0 },
     red: { red_1: 0, red_2: 0, red_4: 0 },
     white: { white_1: 4, white_2: 2, white_3: 1 },
     yellow: { yellow_1: 0, yellow_2: 0, yellow_4: 0 },
