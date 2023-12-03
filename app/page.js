@@ -1,113 +1,350 @@
-import Image from 'next/image'
+"use client";
+import React, { useState } from "react";
+// import Token from './components/Token'
 
-export default function Home() {
+const Badge = ({ count }) => {
+  const badgeStyle = {
+    position: "absolute",
+    top: "-5px",
+    right: "-10px",
+    backgroundColor: "green",
+    color: "white",
+    padding: "5px",
+    borderRadius: "50%",
+    fontSize: "small",
+    textAlign: "center",
+    width: "16px",
+    height: "16px",
+  };
+
+  return <div style={badgeStyle}>{count}</div>;
+};
+
+const Choices = ({
+  choices,
+  setChoices,
+  setPot,
+  removeToken,
+  handleBlues,
+  drawRandomToken,
+  sack,
+}) => {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    choices.length > 0 && (
+      <div className="choices-container">
+        <small>Choose one to go into the pot</small>
+        <div className="choices">
+          {choices.map((item, index) => (
+            <div className="drawnToken">
+              <ChoiceToken
+                setPot={setPot}
+                removeToken={removeToken}
+                setChoices={setChoices}
+                key={index}
+                item={item}
+                handleBlues={handleBlues}
+                drawRandomToken={drawRandomToken}
+                sack={sack}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="center-btn">
+          {choices.length > 0 && (
+            <button
+              onClick={() => {
+                setChoices([]);
+              }}
+            >
+              Reject
+            </button>
+          )}
         </div>
       </div>
+    )
+  );
+};
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+const ChoiceToken = ({
+  setPot,
+  removeToken,
+  item,
+  setChoices,
+  handleBlues,
+  drawRandomToken,
+  sack,
+}) => {
+  const handleTokenClick = (e) => {
+    if (item == null) return;
+    setPot((prevPot) => [item, ...prevPot]);
+    removeToken(item.color, item.label);
+    setChoices([]);
+    handleBlues(item, setChoices, drawRandomToken, sack);
+  };
+
+  return (
+    <Token tokenFunc={handleTokenClick} label={item.label} color={item.color} />
+  );
+};
+
+const DrawButton = ({
+  sack,
+  setChoices,
+  setPot,
+  removeToken,
+  drawRandomToken,
+  handleBlues,
+}) => {
+  const handleRandomDraw = (sack) => {
+    const randomItem = drawRandomToken(sack);
+
+    if (randomItem == null) return;
+
+    // console.log("Randomly Selected Item:", randomItem);
+    setPot((prevPot) => [randomItem, ...prevPot]);
+    removeToken(randomItem.color, randomItem.label);
+
+    // Handle blue tokens
+    handleBlues(randomItem, setChoices, drawRandomToken, sack);
+  };
+
+  const handleClick = (e) => {
+    handleRandomDraw(sack);
+  };
+
+  return (
+    <>
+      <button className="draw-btn" onClick={handleClick}>
+        Draw
+      </button>
+      {/* {typeof result.label !== "undefined" && (
+        <Token color={result.color} label={result.label} />
+      )} */}
+    </>
+  );
+};
+
+const Pot = ({ pot, restoreToSack }) => {
+  return (
+    <div className="pot-container">
+      <h2>Pot</h2>
+      <div className="pot">
+        {pot.map((item, index) => (
+          <div className="drawnToken">
+            <Token key={index} color={item.color} label={item.label} />
+          </div>
+        ))}
+      </div>
+      {pot.length > 0 && (
+        <div className="center-btn">
+          <button onClick={restoreToSack}>Restore</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const RemoveToken = ({ removeFunc }) => {
+  const removeTokenStyle = {
+    position: "absolute",
+    top: "-5px",
+    left: "-10px",
+    backgroundColor: "gray",
+    color: "white",
+    // padding: "5px",
+    borderRadius: "10%",
+    fontSize: "small",
+    textAlign: "center",
+    width: "20px",
+    height: "20px",
+  };
+
+  return (
+    <div onClick={removeFunc} style={removeTokenStyle}>
+      -
+    </div>
+  );
+};
+
+function Token({ tokenFunc, label }) {
+  return (
+    <>
+      <img onClick={tokenFunc} className="token" src={label + ".png"}></img>
+    </>
+  );
+}
+
+const TokenTable = ({ sack, setSack, addToken, removeToken }) => {
+  return (
+    <table>
+      <tbody>
+        {Object.entries(sack).map(([color, values]) => (
+          <tr key={color}>
+            {Object.entries(values).map(([value, count]) => (
+              <td className="tokenCnt" key={`${color}-${value}`}>
+                <TokenWithBadge
+                  color={`${color}`}
+                  label={`${value}`}
+                  count={`${count}`}
+                  setSack={setSack}
+                  addToken={addToken}
+                  removeToken={removeToken}
+                />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+const TokenWithBadge = ({
+  color,
+  label,
+  count,
+  setSack,
+  addToken,
+  removeToken,
+}) => {
+  const containerStyle = {
+    position: "relative",
+    display: "inline-block", // Ensures the container only takes as much space as the image and badge need
+    margin: "10px 20px",
+  };
+
+  const handleTokenClick = (e) => {
+    addToken(color, label);
+  };
+
+  const handleRemoveClick = (e) => {
+    removeToken(color, label);
+  };
+
+  return (
+    <div style={containerStyle}>
+      <Token tokenFunc={handleTokenClick} label={label} color={color} />
+      <Badge count={count} />
+      <RemoveToken removeFunc={handleRemoveClick} />
+    </div>
+  );
+};
+
+export default function App() {
+  const startingTokens = {
+    black: { black_1: 0 },
+    blue: { blue_1: 0, blue_2: 0, blue_4: 0 },
+    green: { green_1: 1, green_2: 0, green_4: 0 },
+    orange: { orange_1: 1 },
+    purple: { purple_1: 1 },
+    red: { red_1: 0, red_2: 0, red_4: 0 },
+    white: { white_1: 4, white_2: 2, white_3: 1 },
+    yellow: { yellow_1: 0, yellow_2: 0, yellow_4: 0 },
+  };
+
+  const [sack, setSack] = useState(startingTokens);
+  const [pot, setPot] = useState([]);
+  const [choices, setChoices] = useState([]);
+
+  const removeToken = (color, label) => {
+    setSack((prevSack) => {
+      const existingColor = prevSack[color] || {};
+      const existingValue = existingColor[label] || 0;
+      return {
+        ...prevSack,
+        [color]: {
+          ...existingColor,
+          [label]: existingValue ? existingValue - 1 : 0,
+        },
+      };
+    });
+  };
+
+  const addToken = (color, value) => {
+    setSack((prevSack) => {
+      const existingColor = prevSack[color] || {};
+      const existingValue = existingColor[value] || 0;
+      return {
+        ...prevSack,
+        [color]: {
+          ...existingColor,
+          [value]: existingValue + 1,
+        },
+      };
+    });
+  };
+
+  function drawRandomToken(data) {
+    // Flatten the object to an array of items with their values
+    const flattenedData = Object.entries(data).flatMap(([color, values]) =>
+      Object.entries(values).map(([label, count]) => ({
+        color,
+        label,
+        count,
+      }))
+    );
+
+    // Filter items with count greater than 0
+    const itemsWithCountGreaterThanZero = flattenedData.filter(
+      (item) => item.count > 0
+    );
+
+    // Randomly select an item from the filtered array
+    const randomItem =
+      itemsWithCountGreaterThanZero[
+        Math.floor(Math.random() * itemsWithCountGreaterThanZero.length)
+      ];
+    return randomItem;
+  }
+
+  function handleBlues(item, setChoices, drawRandomToken, sack) {
+    if (item.color === "blue") {
+      const count = item.label.slice(-1);
+      for (let i = 0; i < count; i++) {
+        const randomItem = drawRandomToken(sack);
+        // console.log(randomItem);
+        if (randomItem == null) return;
+        setChoices((prevChoices) => [...prevChoices, randomItem]);
+      }
+    }
+  }
+
+  const restoreToSack = () => {
+    pot.map((item, index) => {
+      addToken(item.color, item.label);
+    });
+    setPot([]);
+  };
+
+  return (
+    <>
+      <div className="center-btn">
+        <DrawButton
+          sack={sack}
+          setChoices={setChoices}
+          setPot={setPot}
+          removeToken={removeToken}
+          drawRandomToken={drawRandomToken}
+          handleBlues={handleBlues}
         />
       </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      <Pot pot={pot} restoreToSack={restoreToSack} />
+      <Choices
+        className="choices-container"
+        choices={choices}
+        setChoices={setChoices}
+        setPot={setPot}
+        removeToken={removeToken}
+        handleBlues={handleBlues}
+        drawRandomToken={drawRandomToken}
+        sack={sack}
+      />
+      <TokenTable
+        sack={sack}
+        setSack={setSack}
+        addToken={addToken}
+        removeToken={removeToken}
+      />
+    </>
+  );
 }

@@ -1,8 +1,86 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.token {
+  width: 70px;
+  height: 70px;
+}
 
-:root {
+.draw-btn {
+  padding: 10px 20px;
+  font-size: 25px;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.draw-btn:hover {
+  background-color: #0056b3;
+}
+
+.draw-btn:active {
+  background-color: #003366;
+}
+
+.badge {
+  position: 'absolute';
+  top: '-5';
+  right: '-10';
+  background-color: 'green';
+  color: 'white';
+  padding: '5px';
+  border-radius: '50%';
+  font-size: 'small';
+  text-align: 'center';
+  width: '16px';
+  height: '16px';
+}
+
+.center-btn {
+  text-align: center;
+}
+
+.drawnToken {
+  display: inline-block;
+  padding: 10px 5px;
+}
+
+.pot {
+  height: 96px;
+  white-space: nowrap; /* Prevent text from wrapping to the next line */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  background: #cecece;
+  box-shadow: inset 0 0 15px -1px rgba(0, 0, 0, 0.75);
+}
+
+.pot-container {
+  margin: 20px 0;
+  background: #44474a;
+  padding: 10px 20px;
+  border-radius: 7px;
+  color: white;
+}
+
+.choices {
+  background: #cecece;
+  box-shadow: inset 0 0 15px -1px rgba(0, 0, 0, 0.75);
+}
+
+.choices-container {
+  margin: 20px 0;  
+}
+
+
+
+
+
+
+
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+/* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
@@ -24,4 +102,4 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-}
+} */
