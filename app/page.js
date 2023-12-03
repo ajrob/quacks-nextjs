@@ -35,12 +35,11 @@ const Choices = ({
         <small>Choose one to go into the pot</small>
         <div className="choices">
           {choices.map((item, index) => (
-            <div className="drawnToken">
+            <div key={index} className="drawnToken">
               <ChoiceToken
                 setPot={setPot}
                 removeToken={removeToken}
                 setChoices={setChoices}
-                key={index}
                 item={item}
                 handleBlues={handleBlues}
                 drawRandomToken={drawRandomToken}
@@ -130,8 +129,8 @@ const Pot = ({ pot, restoreToSack }) => {
       <h2>Pot</h2>
       <div className="pot">
         {pot.map((item, index) => (
-          <div className="drawnToken">
-            <Token key={index} color={item.color} label={item.label} />
+          <div key={index} className="drawnToken">
+            <Token color={item.color} label={item.label} />
           </div>
         ))}
       </div>
